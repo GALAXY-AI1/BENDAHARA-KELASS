@@ -1,133 +1,152 @@
 <?php
-// ---------------------
-// KONEKSI DATABASE
-// ---------------------
-$servername = "localhost";
-$username   = "root";
-$password   = "";
-$dbname     = "bendahara_kelasdb5";
+include "koneksi.php";
 
-// Buat koneksi
-$conn = new mysqli($servername, $username, $password);
-
-// Cek koneksi gagal
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
-
-// ---------------------
-// BUAT DATABASE JIKA BELUM ADA
-// ---------------------
-$conn->query("CREATE DATABASE IF NOT EXISTS $dbname");
-$conn->select_db($dbname);
-
-// ---------------------
-// BUAT TABEL JIKA BELUM ADA
-// ---------------------
-$conn->query("
-CREATE TABLE IF NOT EXISTS transaksi (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nama_kelas VARCHAR(100),
-    tanggal DATE,
-    jenis VARCHAR(20),
-    jumlah INT,
-    catatan VARCHAR(200),
-    dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-");
-
-// ---------------------
-// SIMPAN DATA KE DATABASE
-// ---------------------
-if (isset($_POST['simpan'])) {
-
-    $nama_kelas = $_POST['nama_kelas'];
-    $tanggal    = $_POST['tanggal'];
-    $jenis      = $_POST['jenis'];
-    $jumlah     = $_POST['jumlah'];
-    $catatan    = $_POST['catatan'];
-
-    $sql = "INSERT INTO transaksi (nama_kelas, tanggal, jenis, jumlah, catatan)
-            VALUES ('$nama_kelas', '$tanggal', '$jenis', '$jumlah', '$catatan')";
-    
-    if ($conn->query($sql)) {
-        echo "<script>alert('Transaksi berhasil disimpan!');</script>";
-    } else {
-        echo "Error: " . $conn->error;
-    }
-}
+// Ambil data tabungan
+$sql = "SELECT * FROM tabungan ORDER BY id DESC";
+$result = $conn->query($sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Bendahara Kelas</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tabungan Bersama — Baby Blue</title>
+
 <style>
-    body{font-family:Arial;background:#e5f4ff;padding:20px;}
-    .card{max-width:450px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 0 10px #aaa;}
-    input,select{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #888;}
-    button{padding:12px;width:100%;background:blue;color:white;border:0;border-radius:5px;font-size:16px;}
-    table{width:100%;margin-top:20px;border-collapse:collapse;}
-    th,td{border:1px solid #777;padding:8px;text-align:center;}
+    body {
+        margin: 0;
+        font-family: Arial;
+        background: linear-gradient(#bde7ff, #e8f7ff);
+    }
+
+    .container {
+        width: 90%;
+        max-width: 800px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        animation: floatCard 4s infinite ease-in-out;
+    }
+
+    @keyframes floatCard {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+        100% { transform: translateY(0); }
+    }
+
+    h1 {
+        text-align: center;
+        color: #2b6daa;
+        font-size: 30px;
+        margin-bottom: 15px;
+        animation: pulseText 1.5s infinite;
+    }
+
+    @keyframes pulseText {
+        50% { transform: scale(1.05); }
+    }
+
+    .pulse-animal {
+        font-size: 22px;
+        animation: pulseAnimal 1.2s infinite;
+    }
+
+    @keyframes pulseAnimal {
+        50% { transform: scale(1.2); }
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #7ec8ff;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        background: #69b6ff;
+        padding: 12px;
+        color: white;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        border-radius: 10px;
+        transition: .3s;
+    }
+
+    .btn:hover {
+        background: #2a91e8;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    table th, table td {
+        padding: 10px;
+        border: 1px solid #b3dfff;
+        text-align: center;
+    }
+    table th {
+        background: #d5eeff;
+    }
+
+    a {
+        text-decoration: none;
+        color: #0077cc;
+    }
 </style>
+
 </head>
 <body>
 
-<div class="card">
-    <h2>Bendahara Kelas</h2>
-    
-    <form method="POST">
-        <label>Nama Kelas</label>
-        <input type="text" name="nama_kelas" required>
+<div class="container">
 
-        <label>Tanggal</label>
-        <input type="date" name="tanggal" required>
+    <h1>Tabungan Bersama <span class="pulse-animal">🐼🐰🐱</span></h1>
 
-        <label>Jenis</label>
-        <select name="jenis">
+    <form method="POST" action="insert.php">
+        <input type="text" name="nama" class="form-control" placeholder="Nama" required>
+        <input type="number" name="jumlah" class="form-control" placeholder="Jumlah" required>
+
+        <select name="tipe" class="form-control">
             <option value="pemasukan">Pemasukan</option>
             <option value="pengeluaran">Pengeluaran</option>
         </select>
 
-        <label>Jumlah</label>
-        <input type="number" name="jumlah" required>
+        <input type="text" name="catatan" class="form-control" placeholder="Catatan">
 
-        <label>Catatan</label>
-        <input type="text" name="catatan">
-
-        <button type="submit" name="simpan">Simpan Transaksi</button>
+        <button class="btn">Simpan</button>
     </form>
-</div>
 
-<br>
-
-<h2>Riwayat Transaksi</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Kelas</th>
-        <th>Tanggal</th>
-        <th>Jenis</th>
-        <th>Jumlah</th>
-        <th>Catatan</th>
-    </tr>
-
-    <?php
-    $data = $conn->query("SELECT * FROM transaksi ORDER BY id DESC");
-    while ($row = $data->fetch_assoc()) {
-        echo "
+    <h2>Riwayat Transaksi</h2>
+    <table>
         <tr>
-            <td>{$row['id']}</td>
-            <td>{$row['nama_kelas']}</td>
-            <td>{$row['tanggal']}</td>
-            <td>{$row['jenis']}</td>
-            <td>{$row['jumlah']}</td>
-            <td>{$row['catatan']}</td>
-        </tr>";
-    }
-    ?>
-</table>
+            <th>Nama</th>
+            <th>Tipe</th>
+            <th>Jumlah</th>
+            <th>Catatan</th>
+            <th>Aksi</th>
+        </tr>
+
+        <?php while($row = $result->fetch_assoc()): ?>
+        <tr>
+            <td><?= $row['nama'] ?></td>
+            <td><?= $row['tipe'] ?></td>
+            <td><?= number_format($row['jumlah']) ?></td>
+            <td><?= $row['catatan'] ?></td>
+            <td>
+                <a href="edit.php?id=<?= $row['id'] ?>">Edit</a> |
+                <a href="delete.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus data ini?')">Hapus</a>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+
+    </table>
+</div>
 
 </body>
 </html>
