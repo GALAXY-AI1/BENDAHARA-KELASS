@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bendahara Kelas - LocalStorage</title>
+
+<style>
+    body{font-family:Arial;background:#e5f4ff;padding:20px;}
+    .card{
+        max-width:450px;margin:auto;background:white;padding:20px;
+        border-radius:10px;box-shadow:0 0 10px #aaa;
+    }
+    input,select{
+        width:100%;padding:10px;margin:8px 0;border-radius:5px;
+        border:1px solid #888;
+    }
+    button{
+        padding:12px;width:100%;background:blue;color:white;
+        border:0;border-radius:5px;font-size:16px;cursor:pointer;
+    }
+    table{
+        width:100%;margin-top:20px;border-collapse:collapse;
+    }
+    th,td{
+        border:1px solid #777;padding:8px;text-align:center;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Bendahara Kelas (LocalStorage)</h2>
+
+    <form id="formTransaksi">
+        <label>Nama Kelas</label>
+        <input type="text" id="nama_kelas" required>
+
+        <label>Tanggal</label>
+        <input type="date" id="tanggal" required>
+
+        <label>Jenis</label>
+        <select id="jenis" required>
+            <option value="pemasukan">Pemasukan</option>
+            <option value="pengeluaran">Pengeluaran</option>
+        </select>
+
+        <label>Jumlah</label>
+        <input type="number" id="jumlah" required>
+
+        <label>Catatan</label>
+        <input type="text" id="catatan">
+
+        <button type="submit">SIMPAN</button>
+    </form>
+</div>
+
+<h2>Riwayat Transaksi</h2>
+
+<table id="tabelData">
+    <tr>
+        <th>ID</th>
+        <th>Kelas</th>
+        <th>Tanggal</th>
+        <th>Jenis</th>
+        <th>Jumlah</th>
+        <th>Catatan</th>
+    </tr>
+</table>
+
+<script>
+    // AMBIL DATA DARI LOCALSTORAGE
+    let dataTransaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
+
+    // MENAMPILKAN DATA KE TABEL
+    function loadTable() {
+        const tabel = document.getElementById("tabelData");
+
+        // hapus baris lama
+        tabel.innerHTML = `
+            <tr>
+                <th>ID</th>
+                <th>Kelas</th>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th>Jumlah</th>
+                <th>Catatan</th>
+            </tr>
+        `;
+
+        dataTransaksi.forEach((row, i) => {
+            const tr = `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${row.nama_kelas}</td>
+                    <td>${row.tanggal}</td>
+                    <td>${row.jenis}</td>
+                    <td>${row.jumlah}</td>
+                    <td>${row.catatan}</td>
+                </tr>
+            `;
+            tabel.innerHTML += tr;
+        });
+    }
+
+    loadTable();
+
+    // SIMPAN DATA KE LOCALSTORAGE
+    document.getElementById("formTransaksi").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const transaksi = {
+            nama_kelas: document.getElementById("nama_kelas").value,
+            tanggal: document.getElementById("tanggal").value,
+            jenis: document.getElementById("jenis").value,
+            jumlah: document.getElementById("jumlah").value,
+            catatan: document.getElementById("catatan").value
+        };
+
+        // tambah data
+        dataTransaksi.push(transaksi);
+
+        // simpan ke localstorage
+        localStorage.setItem("transaksi", JSON.stringify(dataTransaksi));
+
+        alert("Data berhasil disimpan!");
+
+        // refresh tabel
+        loadTable();
+
+        // reset form
+        document.getElementById("formTransaksi").reset();
+    });
+</script>
+
+</body>
+</html>
